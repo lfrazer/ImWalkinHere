@@ -1,21 +1,15 @@
 #include "CollisionHandler.h"
 
-#include "SKSE/API.h"
-#include "SKSE/Trampoline.h"
-
 #include "Events.h"
 #include "Settings.h"
 
 
-namespace
-{
-	constexpr auto COLLISION_FLAG = static_cast<UInt32>(RE::CFilter::Flag::kNoCollision);
-}
+constexpr auto COLLISION_FLAG = static_cast<UInt32>(RE::CFilter::Flag::kNoCollision);
 
 
-void ICollider::PreCollide(RE::Actor* a_actor)
+void ICollider::PreCollide(not_null<RE::Actor*> a_actor, RE::TESObjectREFR* a_colRef)
 {
-	if (ShouldIgnoreCollision(a_actor)) {
+	if (ShouldIgnoreCollision(a_colRef)) {
 		SetCollisionObject(a_actor);
 		SetCollisionOnObject(false);
 	}
@@ -31,7 +25,7 @@ void ICollider::PostCollide()
 }
 
 
-void ICollider::SetCollisionObject(RE::Actor* a_actor)
+void ICollider::SetCollisionObject(not_null<RE::Actor*> a_actor)
 {
 	auto controller = a_actor->GetCharController();
 	_collisionObj = controller->bumpedCharCollisionObject;
@@ -62,10 +56,10 @@ void CollisionHandler::Install()
 		return;
 	}
 
-	REL::Offset<std::uintptr_t> hookPoint(REL::ID(36359), 0xF0);
+	REL::Offset<std::uintptr_t> hookPoint{ REL::ID(36359), 0xF0 };
 
 	auto trampoline = SKSE::GetTrampoline();
-	_ApplyMovementDelta = trampoline->Write5CallEx(hookPoint.GetAddress(), Hook_ApplyMovementDelta);
+	_ApplyMovementDelta = trampoline->Write5CallEx(hookPoint.address(), Hook_ApplyMovementDelta);
 
 	_MESSAGE("Installed hooks for %s", typeid(CollisionHandler).name());
 }
@@ -81,11 +75,19 @@ bool CollisionHandler::Init()
 		_colliders.push_back(std::make_unique<AllyCollider>());
 	}
 
+	if (*Settings::disableSummonCollision) {
+		_colliders.push_back(std::make_unique<SummonCollider>());
+	}
+
+	if (*Settings::disableAllySummonCollision) {
+		_colliders.push_back(std::make_unique<AllySummonCollider>());
+	}
+
 	return !_colliders.empty();
 }
 
 
-void CollisionHandler::Hook_ApplyMovementDelta(RE::Actor* a_actor, float a_delta)
+void CollisionHandler::Hook_ApplyMovementDelta(not_null<RE::Actor*> a_actor, float a_delta)
 {
 	if (!CanProcess(a_actor, a_delta)) {
 		_ApplyMovementDelta(a_actor, a_delta);
@@ -93,7 +95,7 @@ void CollisionHandler::Hook_ApplyMovementDelta(RE::Actor* a_actor, float a_delta
 }
 
 
-bool CollisionHandler::CanProcess(RE::Actor* a_actor, float a_delta)
+bool CollisionHandler::CanProcess(not_null<RE::Actor*> a_actor, float a_delta)
 {
 	if (!a_actor->IsPlayerRef()) {
 		return false;
@@ -114,25 +116,26 @@ bool CollisionHandler::CanProcess(RE::Actor* a_actor, float a_delta)
 		return false;
 	}
 
-	PreCollide(a_actor);
+	auto colRef = RE::TESHavokUtilities::FindCollidableRef(collisionObj->collidable);
+	PreCollide(a_actor, colRef);
 
 	_ApplyMovementDelta(a_actor, a_delta);
 
-	PostCollide(a_actor);
+	PostCollide();
 
 	return true;
 }
 
 
-void CollisionHandler::PreCollide(RE::Actor* a_actor)
+void CollisionHandler::PreCollide(not_null<RE::Actor*> a_actor, RE::TESObjectREFR* a_colRef)
 {
 	for (auto& collider : _colliders) {
-		collider->PreCollide(a_actor);
+		collider->PreCollide(a_actor, a_colRef);
 	}
 }
 
 
-void CollisionHandler::PostCollide([[maybe_unused]] RE::Actor* a_actor)
+void CollisionHandler::PostCollide()
 {
 	for (auto& collider : _colliders) {
 		collider->PostCollide();
@@ -140,29 +143,55 @@ void CollisionHandler::PostCollide([[maybe_unused]] RE::Actor* a_actor)
 }
 
 
-decltype(CollisionHandler::_colliders) CollisionHandler::_colliders;
-
-
-bool DialogueCollider::ShouldIgnoreCollision([[maybe_unused]] RE::Actor* a_actor)
+bool DialogueCollider::ShouldIgnoreCollision(RE::TESObjectREFR*)
 {
 	auto menuHandler = Events::MenuOpenCloseHandler::GetSingleton();
 	return menuHandler->IsInDialogue();
 }
 
 
-bool AllyCollider::ShouldIgnoreCollision(RE::Actor* a_actor)
+bool AllyCollider::ShouldIgnoreCollision(RE::TESObjectREFR* a_colRef)
 {
-	auto controller = a_actor->GetCharController();
-	auto collisionObj = controller->bumpedCharCollisionObject.get();
-	auto colRef = RE::TESHavokUtilities::FindCollidableRef(collisionObj->collidable);
-	if (!colRef) {
+	if (!a_colRef || a_colRef->IsNot(RE::FormType::ActorCharacter)) {
 		return false;
 	}
 
-	if (colRef->IsNot(RE::FormType::ActorCharacter)) {
+	auto colActor = static_cast<RE::Actor*>(a_colRef);
+	return colActor->IsPlayerTeammate() && !colActor->IsAMount();
+}
+
+
+bool SummonCollider::ShouldIgnoreCollision(RE::TESObjectREFR* a_colRef)
+{
+	if (!a_colRef || a_colRef->IsNot(RE::FormType::ActorCharacter)) {
 		return false;
 	}
 
-	auto colActor = static_cast<RE::Actor*>(colRef);
-	return colActor->IsPlayerTeammate() && !colActor->IsHorse();
+	auto player = RE::PlayerCharacter::GetSingleton();
+	auto colActor = static_cast<RE::Actor*>(a_colRef);
+	if (!player || colActor->IsAMount()) {
+		return false;
+	}
+
+	auto hCommander = colActor->GetCommandingActor();
+	auto hPlayer = player->CreateRefHandle();
+	return hCommander && hPlayer && hCommander == hPlayer;
+}
+
+
+bool AllySummonCollider::ShouldIgnoreCollision(RE::TESObjectREFR* a_colRef)
+{
+	if (!a_colRef || a_colRef->IsNot(RE::FormType::ActorCharacter)) {
+		return false;
+	}
+
+	auto player = RE::PlayerCharacter::GetSingleton();
+	auto colActor = static_cast<RE::Actor*>(a_colRef);
+	if (!player | colActor->IsAMount()) {
+		return false;
+	}
+
+	auto hCommander = colActor->GetCommandingActor();
+	auto commander = hCommander.get();
+	return commander && commander->IsPlayerTeammate();
 }

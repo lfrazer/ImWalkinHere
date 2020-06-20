@@ -1,9 +1,5 @@
 #pragma once
 
-#include <atomic>
-
-#include "RE/Skyrim.h"
-
 
 namespace Events
 {
@@ -16,7 +12,7 @@ namespace Events
 		static MenuOpenCloseHandler* GetSingleton();
 		static void Install();
 
-		virtual	EventResult ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource) override;
+		virtual EventResult ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource) override;
 
 		bool IsInDialogue() const;
 

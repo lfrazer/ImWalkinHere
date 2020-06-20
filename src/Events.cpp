@@ -1,7 +1,5 @@
 #include "Events.h"
 
-#include "SKSE/API.h"
-
 
 namespace Events
 {
@@ -20,7 +18,7 @@ namespace Events
 	}
 
 
-	auto MenuOpenCloseHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a_event, [[maybe_unused]] RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource)
+	auto MenuOpenCloseHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*)
 		-> EventResult
 	{
 		auto intfcStr = RE::InterfaceStrings::GetSingleton();

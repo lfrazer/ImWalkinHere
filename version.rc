@@ -1,4 +1,4 @@
-#include "include\version.h"
+#include "src/version.h"
 #include <winres.h>
 
 1 VERSIONINFO
@@ -18,11 +18,11 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "ImWalkinHere"
+            VALUE "FileDescription", "I'm Walkin' Here"
 			VALUE "FileVersion", WLKN_VERSION_VERSTRING
-            VALUE "InternalName", "ImWalkinHere"
+            VALUE "InternalName", "I'm Walkin' Here"
             VALUE "LegalCopyright", "MIT License"
-            VALUE "ProductName", "ImWalkinHere"
+            VALUE "ProductName", "I'm Walkin' Here"
 			VALUE "ProductVersion", WLKN_VERSION_VERSTRING
         END
     END
