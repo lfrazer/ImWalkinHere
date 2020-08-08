@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.30128.36
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImWalkinHere", "ImWalkinHere.vcxproj", "{18ADF53C-0602-4DE9-9798-BDBFFE12D820}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CommonLibSSE", "%CommonLibSSEPath%\CommonLibSSE.vcxproj", "{3E4B6EF3-EC6E-46CF-9003-EEB57A258B82}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CommonLibSSE", "..\CommonLibSSE-git\CommonLibSSE.vcxproj", "{3E4B6EF3-EC6E-46CF-9003-EEB57A258B82}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Json2Settings", "%Json2SettingsPath%\Json2Settings.vcxproj", "{00E04E24-E02F-43C5-A52C-00DAEC8F1671}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Json2Settings", "..\JSon2Settings-master\Json2Settings.vcxproj", "{00E04E24-E02F-43C5-A52C-00DAEC8F1671}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
