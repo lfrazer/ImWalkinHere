@@ -20,7 +20,11 @@ private:
 	void ClearCollisionObject();
 	void SetCollisionOnObject(bool a_set);
 
+#ifdef SKYRIMVR
+	RE::hkRefPtr<RE::hkpRigidBody> _collisionObj;
+#else
 	RE::hkRefPtr<RE::hkpWorldObject> _collisionObj;
+#endif
 };
 
 
@@ -38,7 +42,11 @@ private:
 	static void PreCollide(not_null<RE::Actor*> a_actor, RE::TESObjectREFR* a_colRef);
 	static void PostCollide();
 
+#ifdef SKYRIMVR
+	static inline decltype(&Hook_ApplyMovementDelta) _ApplyMovementDelta;
+#else
 	static inline REL::Offset<decltype(Hook_ApplyMovementDelta)> _ApplyMovementDelta;
+#endif
 	static inline std::vector<std::unique_ptr<ICollider>> _colliders;
 };
 

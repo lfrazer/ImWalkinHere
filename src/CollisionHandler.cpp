@@ -70,7 +70,7 @@ void CollisionHandler::Install()
 #endif
 
 	auto trampoline = SKSE::GetTrampoline();
-	_ApplyMovementDelta = trampoline->Write5CallEx(hookAddr, Hook_ApplyMovementDelta);
+	_ApplyMovementDelta = (decltype(_ApplyMovementDelta))trampoline->Write5CallEx(hookAddr, Hook_ApplyMovementDelta);
 
 	_MESSAGE("Installed hooks for %s", typeid(CollisionHandler).name());
 }
