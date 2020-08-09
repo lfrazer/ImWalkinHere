@@ -20,7 +20,11 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 
 extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
+#ifdef SKYRIMVR
+	SKSE::Logger::OpenRelative(FOLDERID_Documents, L"\\My Games\\Skyrim VR\\SKSE\\ImWalkinHereVR.log");
+#else
 	SKSE::Logger::OpenRelative(FOLDERID_Documents, L"\\My Games\\Skyrim Special Edition\\SKSE\\ImWalkinHere.log");
+#endif
 	SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kDebugMessage);
 	SKSE::Logger::SetFlushLevel(SKSE::Logger::Level::kDebugMessage);
 	SKSE::Logger::UseLogStamp(true);
@@ -38,7 +42,12 @@ extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Query(const SKSE::QueryInterface* 
 	}
 
 	auto ver = a_skse->RuntimeVersion();
+
+#ifdef SKYRIMVR
+	if( ver != SKSE::RUNTIME_VR_1_4_15) {
+#else
 	if (ver < SKSE::RUNTIME_1_5_39) {
+#endif
 		_FATALERROR("Unsupported runtime version %s!", ver.GetString().c_str());
 		return false;
 	}

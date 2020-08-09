@@ -183,7 +183,12 @@ bool SummonCollider::ShouldIgnoreCollision(RE::TESObjectREFR* a_colRef)
 	if (!player || colActor->IsAMount()) {
 		return false;
 	}
+	
+	// early out for now..
+	return false;
 
+	// TODO: Fix linking issues here??
+	/*
 #ifdef SKYRIMVR
 	auto hCommander = colActor->currentProcess->GetCommandingActor();
 #else
@@ -191,6 +196,7 @@ bool SummonCollider::ShouldIgnoreCollision(RE::TESObjectREFR* a_colRef)
 #endif
 	auto hPlayer = player->CreateRefHandle();
 	return hCommander && hPlayer && hCommander == hPlayer;
+	*/
 }
 
 
@@ -206,6 +212,11 @@ bool AllySummonCollider::ShouldIgnoreCollision(RE::TESObjectREFR* a_colRef)
 		return false;
 	}
 
+	// early out for now..
+	return false;
+
+	// TODO: Fix linking issues here??
+	/*
 #ifdef SKYRIMVR
 	auto hCommander = colActor->currentProcess->GetCommandingActor();
 #else
@@ -213,4 +224,5 @@ bool AllySummonCollider::ShouldIgnoreCollision(RE::TESObjectREFR* a_colRef)
 #endif
 	auto commander = hCommander.get();
 	return commander && commander->IsPlayerTeammate();
+	*/
 }
