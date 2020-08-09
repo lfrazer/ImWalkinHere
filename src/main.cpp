@@ -3,6 +3,10 @@
 #include "Settings.h"
 #include "version.h"
 
+#ifdef SKYRIMVR
+#include "SKSE/Interfaces.h"
+#include "SKSE/API.h"
+#endif
 
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {

@@ -1,6 +1,8 @@
 #pragma once
 
 
+#define PLAYERCHAR_MOVEMENT_FUNC_VR		0x05E07A0
+
 class ICollider
 {
 public:

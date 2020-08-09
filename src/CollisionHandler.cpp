@@ -3,6 +3,11 @@
 #include "Events.h"
 #include "Settings.h"
 
+#ifdef SKYRIMVR
+#include "SKSE/Interfaces.h"
+#include "SKSE/API.h"
+#include "RE/AIProcess.h"
+#endif
 
 constexpr auto COLLISION_FLAG = static_cast<UInt32>(RE::CFilter::Flag::kNoCollision);
 
@@ -56,10 +61,16 @@ void CollisionHandler::Install()
 		return;
 	}
 
+#ifdef SKYRIMVR
+	REL::Offset<std::uintptr_t> hookPoint{ REL::Offset<std::uintptr_t>( (std::uintptr_t)(PLAYERCHAR_MOVEMENT_FUNC_VR + 0xF0)) };
+	uintptr_t hookAddr = hookPoint.GetAddress();
+#else
 	REL::Offset<std::uintptr_t> hookPoint{ REL::ID(36359), 0xF0 };
+	uintptr_t hookAddr = hookPoint.address();
+#endif
 
 	auto trampoline = SKSE::GetTrampoline();
-	_ApplyMovementDelta = trampoline->Write5CallEx(hookPoint.address(), Hook_ApplyMovementDelta);
+	_ApplyMovementDelta = trampoline->Write5CallEx(hookAddr, Hook_ApplyMovementDelta);
 
 	_MESSAGE("Installed hooks for %s", typeid(CollisionHandler).name());
 }
@@ -173,7 +184,11 @@ bool SummonCollider::ShouldIgnoreCollision(RE::TESObjectREFR* a_colRef)
 		return false;
 	}
 
+#ifdef SKYRIMVR
+	auto hCommander = colActor->currentProcess->GetCommandingActor();
+#else
 	auto hCommander = colActor->GetCommandingActor();
+#endif
 	auto hPlayer = player->CreateRefHandle();
 	return hCommander && hPlayer && hCommander == hPlayer;
 }
@@ -191,7 +206,11 @@ bool AllySummonCollider::ShouldIgnoreCollision(RE::TESObjectREFR* a_colRef)
 		return false;
 	}
 
+#ifdef SKYRIMVR
+	auto hCommander = colActor->currentProcess->GetCommandingActor();
+#else
 	auto hCommander = colActor->GetCommandingActor();
+#endif
 	auto commander = hCommander.get();
 	return commander && commander->IsPlayerTeammate();
 }

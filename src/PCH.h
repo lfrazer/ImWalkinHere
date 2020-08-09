@@ -1,8 +1,15 @@
 #pragma once
 
+#ifdef SKYRIMVR
+#include "ForceInclude.h"
+#endif
+
 #include "RE/Skyrim.h"
 #include "REL/Relocation.h"
+
+#ifndef SKYRIMVR
 #include "SKSE/SKSE.h"
+#endif
 
 #include "Json2Settings.h"
 
