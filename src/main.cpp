@@ -44,7 +44,8 @@ extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Query(const SKSE::QueryInterface* 
 	auto ver = a_skse->RuntimeVersion();
 
 #ifdef SKYRIMVR
-	if( ver != SKSE::RUNTIME_VR_1_4_15) {
+	constexpr SKSE::Version RUNTIME_VR_1_4_15_1(1, 4, 15, 1);
+	if( ver < RUNTIME_VR_1_4_15_1) {
 #else
 	if (ver < SKSE::RUNTIME_1_5_39) {
 #endif
