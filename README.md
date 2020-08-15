@@ -2,7 +2,7 @@
 
 ## Build Dependencies
 * [Json2Settings](https://github.com/Ryan-rsm-McKenzie/Json2Settings)
-* [CommonLibSSE](https://github.com/Ryan-rsm-McKenzie/CommonLibSSE)
+* [CommonLibVR](https://github.com/lfrazer/CommonLibVR)
 
 ## End User Dependencies
 * [SKSEVR](https://skse.silverlock.org/)
